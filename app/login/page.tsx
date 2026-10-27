@@ -1,11 +1,9 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 export default function Login() {
-  const router = useRouter();
   const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,8 +20,8 @@ export default function Login() {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       setBusy(false);
       if (error) return setMsg({ kind: "err", text: "Email yoki parol noto‘g‘ri · Wrong email or password" });
-      router.push("/");
-      router.refresh();
+      // Full page load so the server sees the new session cookie (a client push can reuse the cached redirect to /login).
+      window.location.assign("/");
       return;
     }
     const { data, error } = await sb.auth.signUp({
@@ -32,7 +30,7 @@ export default function Login() {
     });
     setBusy(false);
     if (error) return setMsg({ kind: "err", text: error.message });
-    if (data.session) { router.push("/"); router.refresh(); return; }
+    if (data.session) { window.location.assign("/"); return; }
     setMsg({ kind: "ok", text: "Emailingizga tasdiqlash xati yuborildi. Tasdiqlagach, shu yerda kiring · Check your email to confirm, then sign in here." });
     setMode("in");
   }
