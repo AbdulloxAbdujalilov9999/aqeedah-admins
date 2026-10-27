@@ -19,7 +19,7 @@ export default function Login() {
     if (mode === "in") {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       setBusy(false);
-      if (error) return setMsg({ kind: "err", text: "Email yoki parol noto‘g‘ri · Wrong email or password" });
+      if (error) return setMsg({ kind: "err", text: "Email yoki parol noto‘g‘ri" });
       // Full page load so the server sees the new session cookie (a client push can reuse the cached redirect to /login).
       window.location.assign("/");
       return;
@@ -31,7 +31,7 @@ export default function Login() {
     setBusy(false);
     if (error) return setMsg({ kind: "err", text: error.message });
     if (data.session) { window.location.assign("/"); return; }
-    setMsg({ kind: "ok", text: "Emailingizga tasdiqlash xati yuborildi. Tasdiqlagach, shu yerda kiring · Check your email to confirm, then sign in here." });
+    setMsg({ kind: "ok", text: "Emailingizga tasdiqlash xati yuborildi. Tasdiqlagach, shu yerda kiring" });
     setMode("in");
   }
 
@@ -39,20 +39,19 @@ export default function Login() {
     <main className="page" style={{ maxWidth: 420, paddingTop: 60 }}>
       <form className="card stack" onSubmit={submit}>
         <div className="brand"><Logo />Aqeedah <small>admin</small></div>
-        <h1>{mode === "in" ? "Kirish · Sign in" : "Ruxsat so‘rash · Request access"}</h1>
+        <h1>{mode === "in" ? "Kirish" : "Ruxsat so‘rash"}</h1>
         <p className="help">
           Faqat savollarga javob beradigan adminlar uchun. Birinchi ochilgan hisob bosh admin bo‘ladi, keyingilarini u tasdiqlaydi.
-          · Admins only. The first account becomes the main admin, who approves the rest.
         </p>
         {mode === "up" && (
-          <label className="field"><span>To‘liq ism · Full name</span><input type="text" value={name} onChange={(e) => setName(e.target.value)} required /></label>
+          <label className="field"><span>To‘liq ism</span><input type="text" value={name} onChange={(e) => setName(e.target.value)} required /></label>
         )}
         <label className="field"><span>Email</span><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
-        <label className="field"><span>Parol · Password</span><input type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
+        <label className="field"><span>Parol</span><input type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         {msg && <div className={`alert ${msg.kind}`} role="status">{msg.text}</div>}
-        <button className="btn" type="submit" disabled={busy}>{mode === "in" ? "Kirish · Sign in" : "Hisob ochish · Create account"}</button>
+        <button className="btn" type="submit" disabled={busy}>{mode === "in" ? "Kirish" : "Hisob ochish"}</button>
         <button type="button" className="btn ghost sm" onClick={() => { setMode(mode === "in" ? "up" : "in"); setMsg(null); }}>
-          {mode === "in" ? "Hisobingiz yo‘qmi? Ruxsat so‘rang · Request access" : "Hisobingiz bormi? Kiring · Sign in instead"}
+          {mode === "in" ? "Hisobingiz yo‘qmi? Ruxsat so‘rang" : "Hisobingiz bormi? Kiring"}
         </button>
       </form>
     </main>

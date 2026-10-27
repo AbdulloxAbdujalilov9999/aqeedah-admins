@@ -10,10 +10,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     return (
       <main className="page narrow">
         <div className="card stack">
-          <h1>Ruxsat kutilmoqda · Waiting for approval</h1>
+          <h1>Ruxsat kutilmoqda</h1>
           <p>Siz {user.email} sifatida kirdingiz. Bosh admin sizga ruxsat bergach, savollar shu yerda ochiladi.</p>
-          <p className="muted">You are signed in as {user.email}. The questions open once the main admin approves your account.</p>
-          <form action={signOut}><button className="btn ghost sm" type="submit">Chiqish · Sign out</button></form>
+          <form action={signOut}><button className="btn ghost sm" type="submit">Chiqish</button></form>
         </div>
       </main>
     );

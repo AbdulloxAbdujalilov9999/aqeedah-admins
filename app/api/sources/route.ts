@@ -24,13 +24,13 @@ Rules:
 export async function POST(req: Request) {
   const sb = await supabaseServer();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Kirish kerak · Sign in first" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "Kirish kerak" }, { status: 401 });
   const { data: me } = await sb.from("profiles").select("role").eq("id", user.id).single();
-  if (!me?.role) return NextResponse.json({ error: "Ruxsat yo‘q · No access" }, { status: 403 });
+  if (!me?.role) return NextResponse.json({ error: "Ruxsat yo‘q" }, { status: 403 });
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
-      { error: "AI hali sozlanmagan: Vercel’da ANTHROPIC_API_KEY qo‘shing · AI is not set up yet: add ANTHROPIC_API_KEY in Vercel" },
+      { error: "AI hali sozlanmagan: Vercel’da ANTHROPIC_API_KEY qo‘shing" },
       { status: 503 },
     );
   }
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   const question = String(input.question ?? "").slice(0, 4000).trim();
   const draft = String(input.draft ?? "").slice(0, 12000).trim();
   const lang = input.lang === "en" ? "English" : "Uzbek (Latin script)";
-  if (question.length < 10) return NextResponse.json({ error: "Savol juda qisqa · The question is too short" }, { status: 400 });
+  if (question.length < 10) return NextResponse.json({ error: "Savol juda qisqa" }, { status: 400 });
 
   const client = new Anthropic();
   try {
@@ -56,23 +56,23 @@ export async function POST(req: Request) {
       }],
     });
     if (response.stop_reason === "refusal") {
-      return NextResponse.json({ error: "AI bu savolga manba taklif qilmadi · The AI declined this request" }, { status: 422 });
+      return NextResponse.json({ error: "AI bu savolga manba taklif qilmadi" }, { status: 422 });
     }
     if (response.stop_reason === "max_tokens") {
-      return NextResponse.json({ error: "Javob juda uzun bo‘lib ketdi, qayta urinib ko‘ring · The reply was cut off, try again" }, { status: 502 });
+      return NextResponse.json({ error: "Javob juda uzun bo‘lib ketdi, qayta urinib ko‘ring" }, { status: 502 });
     }
     const text = response.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
     return NextResponse.json(JSON.parse(text) as Suggestions);
   } catch (err) {
     if (err instanceof Anthropic.AuthenticationError) {
-      return NextResponse.json({ error: "ANTHROPIC_API_KEY noto‘g‘ri · The API key is invalid" }, { status: 503 });
+      return NextResponse.json({ error: "ANTHROPIC_API_KEY noto‘g‘ri" }, { status: 503 });
     }
     if (err instanceof Anthropic.RateLimitError) {
-      return NextResponse.json({ error: "Hozir so‘rovlar ko‘p, bir daqiqadan keyin urinib ko‘ring · Rate limited, try again in a minute" }, { status: 429 });
+      return NextResponse.json({ error: "Hozir so‘rovlar ko‘p, bir daqiqadan keyin urinib ko‘ring" }, { status: 429 });
     }
     if (err instanceof Anthropic.APIError) {
-      return NextResponse.json({ error: `AI xatosi · AI error (${err.status ?? "?"})` }, { status: 502 });
+      return NextResponse.json({ error: `AI xatosi{err.status ?? "?"})` }, { status: 502 });
     }
-    return NextResponse.json({ error: "AI javobini o‘qib bo‘lmadi · Could not read the AI reply" }, { status: 502 });
+    return NextResponse.json({ error: "AI javobini o‘qib bo‘lmadi" }, { status: 502 });
   }
 }

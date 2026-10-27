@@ -9,15 +9,17 @@ type Lang = "uz" | "en";
 export type Ans = { id: number; title: string; question_text: string; short_answer: string; body: string; status: string };
 
 // Inserted AI references carry this mark; publishing is blocked until every one is checked and the mark removed.
-const VERIFY = "[TEKSHIRING · VERIFY]";
+const VERIFY = "[TEKSHIRING]";
 
 const SNIPPETS: [string, string][] = [
-  ["+ Oyat · Ayah", ":::ayah Sura nomi sura:oyat\nArabcha matn\n---\nMa’nosi\n:::"],
-  ["+ Hadis · Hadith", ":::hadith To‘plam, raqam · daraja\nArabcha matn (ixtiyoriy)\n---\nTarjima\n:::"],
-  ["+ Kitob · Book", ":::source Kitob, muallif, bob/jild/sahifa\nIqtibos\n:::"],
-  ["+ Sarlavha · Heading", "## Sarlavha"],
-  ["+ Mazhablar · Madhhabs", "## Mazhablar qarashi\n- **Hanafiy:** ...\n- **Shofeiy:** ...\n- **Molikiy:** ...\n- **Hanbaliy:** ..."],
+  ["+ Oyat", ":::ayah Sura nomi sura:oyat\nArabcha matn\n---\nMa’nosi\n:::"],
+  ["+ Hadis", ":::hadith To‘plam, raqam · daraja\nArabcha matn (ixtiyoriy)\n---\nTarjima\n:::"],
+  ["+ Kitob", ":::source Kitob, muallif, bob/jild/sahifa\nIqtibos\n:::"],
+  ["+ Sarlavha", "## Sarlavha"],
+  ["+ Mazhablar", "## Mazhablar qarashi\n- **Hanafiy:** ...\n- **Shofeiy:** ...\n- **Molikiy:** ...\n- **Hanbaliy:** ..."],
 ];
+
+const CONF = { high: "ishonchli", medium: "tekshiring", low: "shubhali" } as const;
 
 const LANG_NAME: Record<Lang, string> = { uz: "O‘zbekcha", en: "English" };
 
@@ -62,18 +64,18 @@ export default function Workbench({ qid, qlang: initialLang, question: initialQu
         {isNew ? (
           <>
             <div className="grid2">
-              <label className="field"><span>Til · Language</span>
+              <label className="field"><span>Til</span>
                 <select name="lang" value={qlang} onChange={(e) => { setQlang(e.target.value as Lang); }}>
                   <option value="uz">O‘zbekcha</option><option value="en">English</option>
                 </select>
               </label>
-              <label className="field"><span>Mavzu · Topic</span>
+              <label className="field"><span>Mavzu</span>
                 <select name="topic_id" defaultValue=""><option value="">—</option>{topics?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}</select>
               </label>
             </div>
-            <label className="field"><span>Savol · Question</span>
+            <label className="field"><span>Savol</span>
               <textarea name="question" value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={4000} required style={{ minHeight: 100 }} />
-              <span className="help">Saytda shu matn savol sifatida ko‘rinadi · Shown on the site as the question.</span>
+              <span className="help">Saytda shu matn savol sifatida ko‘rinadi</span>
             </label>
           </>
         ) : (
@@ -82,25 +84,25 @@ export default function Workbench({ qid, qlang: initialLang, question: initialQu
             <input type="hidden" name="lang" value={lang} />
           </>
         )}
-        {isTranslation && <p className="help">Bu tarjima: asl javobni {LANG_NAME[lang]} tiliga o‘giring · This is the translation of the original answer.</p>}
-        <label className="field"><span>Sarlavha · Title</span>
+        {isTranslation && <p className="help">Bu tarjima: asl javobni {LANG_NAME[lang]} tiliga o‘giring</p>}
+        <label className="field"><span>Sarlavha</span>
           <input type="text" name="title" defaultValue={a?.title ?? ""} maxLength={200} required placeholder={lang === "uz" ? "Masalan: Ro‘zador tish yuvsa bo‘ladimi?" : "e.g. Can a fasting person brush their teeth?"} />
         </label>
         {!isNew && (
-          <label className="field"><span>Savol matni (saytda) · Question as published</span>
+          <label className="field"><span>Savol matni (saytda)</span>
             <textarea name="question_text" defaultValue={a?.question_text ?? (lang === qlang ? question : "")} required style={{ minHeight: 80 }} />
-            <span className="help">Ism, telefon, joy va shaxsiy tafsilotlarni olib tashlang · Remove names, phone numbers, places and personal details.</span>
+            <span className="help">Ism, telefon, joy va shaxsiy tafsilotlarni olib tashlang</span>
           </label>
         )}
-        <label className="field"><span>Qisqa javob · Short answer</span>
+        <label className="field"><span>Qisqa javob</span>
           <textarea name="short_answer" value={shorts[lang]} onChange={(e) => setShorts({ ...shorts, [lang]: e.target.value })} required style={{ minHeight: 70 }} />
-          <span className="help">2–3 gap, o‘zi to‘liq tushunarli bo‘lsin · 2–3 sentences that stand on their own.</span>
+          <span className="help">2–3 gap, o‘zi to‘liq tushunarli bo‘lsin</span>
         </label>
         <div className="field">
-          <span>Batafsil javob va dalillar · Full answer and evidence</span>
+          <span>Batafsil javob va dalillar</span>
           <div className="row between">
             <div className="toolbar">{SNIPPETS.map(([l, s]) => <button key={l} type="button" className="btn ghost sm" onClick={() => insert(s, lang)}>{l}</button>)}</div>
-            <button type="button" className="btn ghost sm" onClick={() => setPreview(!preview)}>{preview ? "Tahrirlash · Edit" : "Ko‘rish · Preview"}</button>
+            <button type="button" className="btn ghost sm" onClick={() => setPreview(!preview)}>{preview ? "Tahrirlash" : "Ko‘rish"}</button>
           </div>
           {preview ? (
             <div className="card"><AnswerBody body={bodies[lang]} tx={(s) => s} /></div>
@@ -109,14 +111,14 @@ export default function Workbench({ qid, qlang: initialLang, question: initialQu
           )}
           <input type="hidden" name="body" value={bodies[lang]} />
         </div>
-        {unverified && <div className="alert warn">AI qo‘shgan manbalarni tekshiring va “{VERIFY}” belgisini o‘chiring, keyin chop eta olasiz · Check the AI references and delete the “{VERIFY}” marks before publishing.</div>}
+        {unverified && <div className="alert warn">AI qo‘shgan manbalarni tekshiring va “{VERIFY}” belgisini o‘chiring, keyin chop eta olasiz.</div>}
         <div className="row">
-          {!published && <button className="btn ghost" type="submit" name="intent" value="draft">Qoralama · Save draft</button>}
-          <button className="btn turq" type="submit" name="intent" value="publish" disabled={unverified}>{published ? "Yangilash · Update published" : "Chop etish · Publish"}</button>
+          {!published && <button className="btn ghost" type="submit" name="intent" value="draft">Qoralama</button>}
+          <button className="btn turq" type="submit" name="intent" value="publish" disabled={unverified}>{published ? "Yangilash" : "Chop etish"}</button>
           {published && a && (
-            <button className="btn danger" type="submit" formAction={unpublish} name="answer_id" value={a.id}>Chop etishdan olish · Unpublish</button>
+            <button className="btn danger" type="submit" formAction={unpublish} name="answer_id" value={a.id}>Chop etishdan olish</button>
           )}
-          {a && <span className="small muted">{published ? "Saytda · Live" : "Qoralama · Draft"}</span>}
+          {a && <span className="small muted">{published ? "Saytda" : "Qoralama"}</span>}
         </div>
       </form>
     );
@@ -155,10 +157,10 @@ function AiSources({ question, draft, lang, onInsert }: { question: string; draf
     try {
       const res = await fetch("/api/sources", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, draft, lang }) });
       const json = await res.json();
-      if (!res.ok) setError(json.error ?? "Xato · Error");
+      if (!res.ok) setError(json.error ?? "Xato");
       else setData(json as Suggestions);
     } catch {
-      setError("Tarmoq xatosi · Network error");
+      setError("Tarmoq xatosi");
     }
     setBusy(false);
   }
@@ -176,50 +178,50 @@ function AiSources({ question, draft, lang, onInsert }: { question: string; draf
   return (
     <div className="card stack">
       <div className="row between">
-        <h2>AI: manbalar · Sources</h2>
-        <button className="btn sm" type="button" onClick={run} disabled={busy || question.trim().length < 10}>{busy ? "Qidirilmoqda… · Working…" : data ? "Qayta · Again" : "Topish · Suggest"}</button>
+        <h2>AI: manbalar</h2>
+        <button className="btn sm" type="button" onClick={run} disabled={busy || question.trim().length < 10}>{busy ? "Qidirilmoqda…" : data ? "Qayta" : "Topish"}</button>
       </div>
-      <p className="help">Savol va qoralamangizga qarab oyat, hadis va Hanafiy kitoblarni taklif qiladi. AI xato qilishi mumkin: har birini havola orqali tekshiring. · Suggests verses, hadith and Hanafi books for your answer. AI can be wrong: check each one through its link.</p>
-      {busy && <p className="small muted">Odatda 20–60 soniya · Usually 20–60 seconds</p>}
+      <p className="help">Savol va qoralamangizga qarab oyat, hadis va Hanafiy kitoblarni taklif qiladi. AI xato qilishi mumkin: har birini havola orqali tekshiring.</p>
+      {busy && <p className="small muted">Odatda 20–60 soniya</p>}
       {error && <div className="alert err">{error}</div>}
       {data && (
         <>
           {data.note && <div className="alert">{data.note}</div>}
           {data.quran.map((q, i) => (
             <div className="src" key={`q${i}`}>
-              <div className="row between"><span className="ref">Qur’on {ayahRef(q)}</span><span className={`conf ${q.confidence}`}>{q.confidence}</span></div>
+              <div className="row between"><span className="ref">Qur’on {ayahRef(q)}</span><span className={`conf ${q.confidence}`}>{CONF[q.confidence]}</span></div>
               <span>{q.point}</span>
               <div className="acts">
                 <a className="btn ghost sm" href={quranUrl(q.surah, q.ayah_from)} target="_blank" rel="noreferrer">Quran.com ↗</a>
-                <button className="btn ghost sm" type="button" onClick={() => onInsert(`:::ayah ${ayahRef(q)}\n(Arabcha matnni Quran.com’dan ko‘chiring · paste the Arabic from Quran.com)\n---\n${q.point} ${VERIFY}\n:::`)}>Qo‘shish · Insert</button>
+                <button className="btn ghost sm" type="button" onClick={() => onInsert(`:::ayah ${ayahRef(q)}\n(Arabcha matnni Quran.com’dan ko‘chiring)\n---\n${q.point} ${VERIFY}\n:::`)}>Qo‘shish</button>
               </div>
             </div>
           ))}
           {data.hadith.map((h, i) => (
             <div className="src" key={`h${i}`}>
-              <div className="row between"><span className="ref">{hadithRef(h)}</span><span className={`conf ${h.confidence}`}>{h.confidence}</span></div>
+              <div className="row between"><span className="ref">{hadithRef(h)}</span><span className={`conf ${h.confidence}`}>{CONF[h.confidence]}</span></div>
               {h.narrator && <span className="small muted">{h.narrator}</span>}
               <span>{h.summary}</span>
               <span className="small muted">{h.point}</span>
               <div className="acts">
                 <a className="btn ghost sm" href={hadithUrl(h.collection, h.number)} target="_blank" rel="noreferrer">Sunnah.com ↗</a>
-                <button className="btn ghost sm" type="button" onClick={() => onInsert(`:::hadith ${hadithRef(h)}\n(Arabcha matn · Arabic, optional)\n---\n${h.summary} ${VERIFY}\n:::`)}>Qo‘shish · Insert</button>
+                <button className="btn ghost sm" type="button" onClick={() => onInsert(`:::hadith ${hadithRef(h)}\n(Arabcha matn{h.summary} ${VERIFY}\n:::`)}>Qo‘shish</button>
               </div>
             </div>
           ))}
           {data.fiqh.map((f, i) => (
             <div className="src" key={`f${i}`}>
-              <div className="row between"><span className="ref">{f.book}</span><span className={`conf ${f.confidence}`}>{f.confidence}</span></div>
+              <div className="row between"><span className="ref">{f.book}</span><span className={`conf ${f.confidence}`}>{CONF[f.confidence]}</span></div>
               <span className="small muted">{f.author}{f.location ? ` · ${f.location}` : ""}</span>
               <span>{f.position}</span>
               <div className="acts">
-                <button className="btn ghost sm" type="button" onClick={() => onInsert(`:::source ${f.book}, ${f.author}${f.location ? `, ${f.location}` : ""}\n${f.position} ${VERIFY}\n:::`)}>Qo‘shish · Insert</button>
+                <button className="btn ghost sm" type="button" onClick={() => onInsert(`:::source ${f.book}, ${f.author}${f.location ? `, ${f.location}` : ""}\n${f.position} ${VERIFY}\n:::`)}>Qo‘shish</button>
               </div>
             </div>
           ))}
           {data.quran.length + data.hadith.length + data.fiqh.length > 0 ? (
-            <button className="btn ghost sm" type="button" onClick={() => onInsert(sourceList(data))}>Manbalar ro‘yxatini qo‘shish · Insert source list</button>
-          ) : <p className="small muted">Mos manba topilmadi · No sources suggested.</p>}
+            <button className="btn ghost sm" type="button" onClick={() => onInsert(sourceList(data))}>Manbalar ro‘yxatini qo‘shish</button>
+          ) : <p className="small muted">Mos manba topilmadi</p>}
         </>
       )}
     </div>
@@ -230,15 +232,15 @@ function Resources({ seed }: { seed: string }) {
   const [q, setQ] = useState(seed.split(/\s+/).slice(0, 8).join(" "));
   return (
     <div className="card stack">
-      <h2>Qidirish · Look it up</h2>
-      <input type="search" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Qidiruv so‘zi · Search words" />
+      <h2>Qidirish</h2>
+      <input type="search" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Qidiruv so‘zi" />
       <div className="links">
         {SEARCH_SITES.map((s) => (
           <a key={s.name} href={s.url(q)} target="_blank" rel="noreferrer">{s.name} ↗<span>{s.note}</span></a>
         ))}
       </div>
       <details>
-        <summary>Asosiy kitoblar · Core books</summary>
+        <summary>Asosiy kitoblar</summary>
         <div className="stack" style={{ marginTop: 8 }}>
           {BOOKS.map((g) => (
             <div key={g.group} className="small">

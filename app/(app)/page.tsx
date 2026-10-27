@@ -9,11 +9,11 @@ type Row = {
 };
 
 const FILTERS = [
-  ["new", "Javobsiz · Unanswered"],
-  ["mine", "Menda · Mine"],
-  ["answered", "Javob berilgan · Answered"],
-  ["closed", "Rad / takror · Declined"],
-  ["all", "Hammasi · All"],
+  ["new", "Javobsiz"],
+  ["mine", "Menda"],
+  ["answered", "Javob berilgan"],
+  ["closed", "Rad / takror"],
+  ["all", "Hammasi"],
 ] as const;
 type Filter = (typeof FILTERS)[number][0];
 
@@ -52,11 +52,11 @@ export default async function Questions({ searchParams }: { searchParams: Promis
   return (
     <main className="page">
       <div className="row between">
-        <h1>Savollar · Questions</h1>
+        <h1>Savollar</h1>
         <form className="row" action="/">
           <input type="hidden" name="f" value={f} />
-          <input type="search" name="q" defaultValue={term} placeholder="Raqam, matn yoki ism · Number, text or name" style={{ width: 300 }} />
-          <button className="btn ghost" type="submit">Qidirish · Search</button>
+          <input type="search" name="q" defaultValue={term} placeholder="Raqam, matn yoki ism" style={{ width: 300 }} />
+          <button className="btn ghost" type="submit">Qidirish</button>
         </form>
       </div>
       <div className="tabs">
@@ -65,17 +65,17 @@ export default async function Questions({ searchParams }: { searchParams: Promis
         ))}
       </div>
       {rows.length === 0 ? (
-        <div className="card muted">Bu yerda savol yo‘q · No questions here.</div>
+        <div className="card muted">Bu yerda savol yo‘q</div>
       ) : (
         <div className="qlist">
-          <div className="qrow head"><span>ID</span><span>Savol · Question</span><span>Kimdan · From</span><span>Vaqt · Sent</span><span>Holat · Status</span></div>
+          <div className="qrow head"><span>ID</span><span>Savol</span><span>Kimdan</span><span>Vaqt</span><span>Holat</span></div>
           {rows.map((r) => (
             <Link key={r.id} href={`/q/${r.id}`} className="qrow">
               <span className="id">{r.id}</span>
               <span className="stack" style={{ gap: 4 }}>
                 <span className="ex">{r.body}</span>
                 <span className="row small muted" style={{ gap: 6 }}>
-                  {r.urgent && <span className="badge urgent">Shoshilinch · Urgent</span>}
+                  {r.urgent && <span className="badge urgent">Shoshilinch</span>}
                   {r.source === "admin" && <span className="badge admin">Admin</span>}
                   <span>{r.lang === "uz" ? "O‘zbekcha" : "English"}</span>
                   {r.topics && <span>· {r.topics.name_uz}</span>}
@@ -88,12 +88,12 @@ export default async function Questions({ searchParams }: { searchParams: Promis
                     {r.asker_phone && <span className="mono">{r.asker_phone}</span>}
                     {r.contact_telegram && <span>@{r.contact_telegram.replace(/^@/, "")}</span>}
                   </>
-                ) : <span className="muted">{r.source === "admin" ? "Admin qo‘shgan · Added by admin" : "—"}</span>}
+                ) : <span className="muted">{r.source === "admin" ? "Admin qo‘shgan" : "—"}</span>}
               </span>
               <span className="meta when"><span>{fmtTime(r.created_at)}</span><span className="muted">{ago(r.created_at)}</span></span>
               <span className="meta st">
                 <span><span className={`badge ${STATUS[r.status].tone}`}>{STATUS[r.status].label}</span></span>
-                {r.assigned_to && OPEN.includes(r.status) && <span className="small muted">{r.assigned_to === user.id ? "Sizda · You" : names[r.assigned_to]}</span>}
+                {r.assigned_to && OPEN.includes(r.status) && <span className="small muted">{r.assigned_to === user.id ? "Sizda" : names[r.assigned_to]}</span>}
               </span>
             </Link>
           ))}
